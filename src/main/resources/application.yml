@@ -1,0 +1,104 @@
+server:
+  port: 8481
+
+spring:
+  #静态资源处理
+  resources:
+    #启用默认静态资源处理，默认启用
+    add-mappings: true
+    cache:
+        cachecontrol:
+      #缓存响应时间，单位秒
+          max-age: 3600
+    chain:
+      #资源链启用缓存，默认启动
+      cache: true
+      #启动资源链，默认禁用
+      enabled: true
+      #启动压缩资源（gzip,brotli）解析，默认禁用
+      compressed: true
+      #开启h5应用缓存，默认禁用
+      html-application-cache: true
+    static-locations: classpath:/static/
+
+  thymeleaf:
+    cache: false
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/seckill?useUnicode=true&characterEncoding=UTF-8&useAffectedRows=true&useTimezone=true&serverTimezone=GMT%2B8
+    username: root
+    password: wuhao,1314
+    hikari:
+      pool-name: DateHikari
+      minimum-idle: 5
+      idle-timeout: 600000
+      maximum-pool-size: 10
+      auto-commit: true
+      max-lifetime: 18000000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  #redis配置
+  redis:
+    #地址
+    host: localhost
+    #端口，默认为6379
+    port: 6379
+    #数据库索引
+    database: 0
+    #密码
+    password: 123456
+    #连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        #连接池中的最小空闲连接
+        min-idle: 0
+        #连接池中的最大空闲连接
+        max-idle: 8
+        #连接池的最大数据库连接数
+        max-active: 8
+        #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+
+  rabbitmq:
+    host: 127.0.0.1
+    username: guest
+    password: guest
+    virtual-host: /
+    port: 5672
+    listener:
+      simple:
+        # 消费者最小数量
+        concurrency: 10
+        # 消费者最大数量
+        max-concurrency: 10
+        # 限制消费者每次只处理一条消息，处理完毕再继续下一条消息
+        prefetch: 1
+        # 启动时是否默认启动容器，默认为true
+        auto-startup: true
+        # 被拒绝时重新进入队列
+        default-requeue-rejected: true
+    template:
+      retry:
+        # 发布重试，默认false
+        enabled: true
+        # 重试时间，默认1000ms
+        initial-interval: 1000ms
+        # 重试最大次数，默认3次
+        max-attempts: 3
+        # 重试最大间隔时间，默认1000ms
+        max-interval: 1000ms
+        # 重试的间隔乘数，比如配2.0，第一次等于10s，第二次等于20s，第三次等于40s
+        multiplier: 1
+
+# mybatis plus相关配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*Mapper.xml
+  type-aliases-package: com.wsz.seckill.pojo
+
+logging:
+  level:
+    com.wsz.pojo.mapper: debug
+
