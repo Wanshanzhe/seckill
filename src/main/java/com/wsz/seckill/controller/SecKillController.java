@@ -2,7 +2,6 @@ package com.wsz.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.ArithmeticCaptcha;
-import com.wsz.seckill.config.AccessLimit;
 import com.wsz.seckill.exception.GlobalException;
 import com.wsz.seckill.pojo.Order;
 import com.wsz.seckill.pojo.SeckillMessage;
@@ -187,12 +186,22 @@ public class SecKillController implements InitializingBean {
      * @param goodsId
      * @return
      */
-    @AccessLimit(second = 5,maxCount = 5, needLogin = true)
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
     public RespBean getPath(User user, Long goodsId, String captcha, HttpServletRequest request){
         if (user == null){
             return RespBean.error(RespBeanEnum.SESSION_ERROR);
+        }
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        //获取访问地址，限制访问次数，5s访问5次
+        StringBuffer uri = request.getRequestURL();
+        Integer count = (Integer) valueOperations.get(uri + ":" + user.getId());
+        if (count == null){
+            valueOperations.set(uri + ":" + user.getId(), 1, 5, TimeUnit.SECONDS);
+        }else if (count < 5){
+            valueOperations.increment(uri + ":" + user.getId());
+        }else{
+            return RespBean.error(RespBeanEnum.ACCESS_LIMIT_REAHCED);
         }
         //校验验证码
         boolean check =  orderService.checkCaptcha(captcha, user, goodsId);
