@@ -48,6 +48,9 @@ public class User implements Serializable {
     @ApiModelProperty("登陆次数")
     private Integer loginCount;
 
+    @ApiModelProperty("用户角色")
+    private Integer role;
+
     public Long getId() {
         return id;
     }
@@ -112,6 +115,14 @@ public class User implements Serializable {
         this.loginCount = loginCount;
     }
 
+    public Integer getRole() {
+        return role;
+    }
+
+    public void setRole(Integer role) {
+        this.role = role;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -123,6 +134,7 @@ public class User implements Serializable {
                 ", registerDate=" + registerDate +
                 ", lastLoginDate=" + lastLoginDate +
                 ", loginCount=" + loginCount +
+                ", role=" + role +
                 "}";
     }
 }

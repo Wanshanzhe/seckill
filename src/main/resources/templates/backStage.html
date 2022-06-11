@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js}"></script>
+    <script type="text/javascript" th:src="@{https://unpkg.com/bootstrap-table@1.14.2/dist/extensions/export/bootstrap-table-export.min.js}"></script>
+
+    <!--时间相关样式-->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap-datetimepicker.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap-datetimepicker.js}"></script>
+    <script type="text/javascript" th:src="@{/bootstrap/js/locales/bootstrap-datetimepicker.zh-CN.js}"></script>
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span>秒杀商品列表管理</span>
+    </div>
+    <div class="panel-heading" style="background-color: #fcf8e3">
+        <button type="button" class="btn btn-primary" id="add">新增商品</button>
+    </div>
+    <table class="table" id="goodslist">
+        <tr>
+            <td>商品名称</td>
+            <td>商品图片</td>
+            <td>商品原价</td>
+            <td>秒杀价</td>
+            <td>库存数量</td>
+            <td>操作</td>
+        </tr>
+        <tr th:each="goods,goodsStat : ${goodsList}">
+            <td th:text="${goods.goodsName}"></td>
+            <td><img th:src="@{${goods.goodsImg}}" width="100" height="100"/>
+            <td th:text="${goods.goodsPrice}"></td>
+            <td th:text="${goods.seckillPrice}"></td>
+            <td th:text="${goods.stockCount}"></td>
+            <td>
+                <a href = "javascript:void(0)" th:onclick = "|javascript : edit( '${goods.id}' )|" >编辑</a>
+                <a href = "javascript:void(0)" th:onclick = "|javascript : remove( '${goods.id}' )|" >删除</a>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="addModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">新增秒杀商品信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" class="form-horizontal">
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-goodsName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品标题</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-goodsTitle">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品图片</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-goodsImg">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品详情</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="a-goodsDetail"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品原价</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-goodsPrice">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >秒杀价</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-seckillPrice">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >商品库存数量</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-goodsStock">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >秒杀库存数量</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="a-stockCount">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >开始时间</label>
+                        <div class="col-sm-9">
+                            <div class="input-group date form_datetime col-md-4" data-date="2022-05-20T08:00:00Z" data-date-format="yyyy-MM-dd hh:mm:ss" data-link-field="dtp_input1">
+                                <input class="form-control" size="16" type="text" value="" id="a-startTime" readonly>
+                                <span class="input-group-addon"><span class="fa fa-calendar">...</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >结束时间</label>
+                        <div class="col-sm-9">
+                            <div class="input-group date form_datetime col-md-4" data-date="2022-05-20T08:00:00Z" data-date-format="yyyy-MM-dd hh:mm:ss" data-link-field="dtp_input1">
+                                <input class="form-control" size="16" type="text" value="" id="a-endTime" readonly>
+                                <span class="input-group-addon"><span class="fa fa-calendar">...</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="add-save-edit-btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">编辑秒杀商品信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="" class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="goodsId">
+                        <label for="" class="col-sm-2 control-label">商品名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="goodsName" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品图片</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="goodsImg" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label">商品原价</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="goodsPrice" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >秒杀价</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="seckillPrice">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >秒杀库存数量</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="stockCount">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >开始时间</label>
+                        <div class="col-sm-9">
+                            <div class="input-group date form_datetime col-md-4" data-date="2022-05-20T08:00:00Z" data-date-format="yyyy-MM-dd hh:mm:ss" data-link-field="dtp_input1">
+                                <input class="form-control" size="16" type="text" value="" id="startTime" readonly>
+                                <span class="input-group-addon"><span class="fa fa-calendar">...</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="col-sm-2 control-label" >结束时间</label>
+                        <div class="col-sm-9">
+                            <div class="input-group date form_datetime col-md-4" data-date="2022-05-20T08:00:00Z" data-date-format="yyyy-MM-dd hh:mm:ss" data-link-field="dtp_input1">
+                                <input class="form-control" size="16" type="text" value="" id="endTime" readonly>
+                                <span class="input-group-addon"><span class="fa fa-calendar">...</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="save-edit-btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+   $(function (){
+       $('#save-edit-btn').click(function (){
+           //获取秒杀商品I
+           var obj = {
+               "goodsId": $("#goodsId").val(),
+               "seckillPrice" : $("#seckillPrice").val(),
+               "stockCount" : $("#stockCount").val(),
+               "startDate" : $("#startTime").val(),
+               "endDate" : $("#endTime").val()
+           }
+           $.ajax({
+               url: '/goods/editSecKillGood',
+               type: 'POST',
+               data: JSON.stringify(obj),
+               dataType: 'json',
+               contentType: 'application/json',
+               success:function (data){
+                   if (data.code == 200){
+                       window.location.href = "/goods/backStage";
+                   }else{
+                       layer.msg(data.message);
+                   }
+               },
+               error: function (data){
+                   layer.msg("客户端请求错误");
+               }
+           })
+       });
+
+       $('#add-save-edit-btn').click(function (){
+           var obj = {
+               "goodsName": $("#a-goodsName").val(),
+               "goodsTitle" : $("a-#goodsTitle").val(),
+               "goodsImg" : $("#a-goodsImg").val(),
+               "goodsDetail" : $("#a-goodsDetail").val(),
+               "goodsPrice" : $("#a-goodsPrice").val(),
+               "seckillPrice" : $("#a-seckillPrice").val(),
+               "goodsStock" : $("#a-goodsStock").val(),
+               "stockCount" : $("#a-stockCount").val(),
+               "startDate" : $("#a-startTime").val(),
+               "endDate" : $("#a-endTime").val()
+           }
+           $.ajax({
+               url: '/goods/addSecKillGood',
+               type: 'POST',
+               data: JSON.stringify(obj),
+               dataType: 'json',
+               contentType: 'application/json',
+               success:function (data){
+                   if (data.code == 200){
+                       window.location.href = "/goods/backStage";
+                   }else{
+                       layer.msg(data.message);
+                   }
+               },
+               error: function (data){
+                   layer.msg("客户端请求错误");
+               }
+           })
+       });
+   });
+
+       $('#add').click(function (){
+           $("#addModal").modal();
+   })
+
+    $('.form_datetime').datetimepicker({
+        language:  'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        forceParse: 0,
+        showMeridian: 1
+    });
+
+    function edit(goodsId){
+        debugger;
+        $.ajax({
+            url: '/goods/querySecKillGood',
+            type: 'GET',
+            data:{
+                goodsId: goodsId
+            },
+            success:function (data){
+                if (data.code == 200){
+                    var goods = data.obj;
+                    $("#goodsId").val(goods.id);
+                    $("#goodsName").val(goods.goodsName);
+                    $("#goodsImg").val(goods.goodsImg);
+                    $("#goodsPrice").val(goods.goodsPrice);
+                    $("#seckillPrice").val(goods.seckillPrice);
+                    $("#stockCount").val(goods.stockCount);
+                    $("#startTime").val(goods.startDate);
+                    $("#endTime").val(goods.endDate);
+                    $("#myModal").modal();
+                }else{
+                    layer.msg(data.message);
+                }
+            },
+            error: function (data){
+                layer.msg("客户端请求错误");
+            }
+        })
+    }
+
+    function remove(goodsId){
+        $.ajax({
+            url: '/goods/delSecKillGood',
+            type: 'POST',
+            data:{
+                goodsId: goodsId
+            },
+            success:function (data){
+                if (data.code == 200){
+                    window.location.href = "/goods/backStage";
+                }
+            },
+            error: function (data){
+                layer.msg("客户端请求错误");
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

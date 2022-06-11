@@ -1,10 +1,15 @@
 package com.wsz.seckill.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.wsz.seckill.pojo.Goods;
+import com.wsz.seckill.pojo.SeckillGoods;
 import com.wsz.seckill.pojo.User;
 import com.wsz.seckill.service.IGoodsService;
-import com.wsz.seckill.service.IUserService;
+import com.wsz.seckill.service.ISeckillGoodsService;
 import com.wsz.seckill.utils.DateUtil;
 import com.wsz.seckill.vo.DetailVo;
+import com.wsz.seckill.vo.GoodDetailVo;
 import com.wsz.seckill.vo.GoodsVo;
 import com.wsz.seckill.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +18,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
@@ -36,10 +39,10 @@ import java.util.concurrent.TimeUnit;
 public class GoodsController {
 
     @Autowired
-    private IUserService userService;
+    private IGoodsService goodsService;
 
     @Autowired
-    private IGoodsService goodsService;
+    private ISeckillGoodsService seckillGoodsService;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -75,6 +78,35 @@ public class GoodsController {
         }
         return html;
 
+    }
+
+    /**
+     * 跳转到商品管理界面
+     * @param model
+     * @param user
+     * @return
+     */
+    @RequestMapping(value = "/backStage", produces = "text/html;charset=utf-8")
+    @ResponseBody
+    public String backStage(Model model, User user, HttpServletRequest request, HttpServletResponse response) {
+        //redis中获取页面，如果不为空，直接返回页面
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String html =  (String)valueOperations.get("backStage");
+        if (!StringUtils.isEmpty(html)){
+            return html;
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("goodsList", goodsService.findGoodsVo());
+
+//        return "goodsList";
+        //如果为空，手动渲染，存入Redis并返回
+        WebContext context = new WebContext(request, response, request.getServletContext(), request.getLocale(),
+                model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("backStage", context);
+        if (!StringUtils.isEmpty(html)){
+            valueOperations.set("backStage", html, 1, TimeUnit.SECONDS);
+        }
+        return html;
     }
 
     /**
@@ -165,4 +197,78 @@ public class GoodsController {
 
         return RespBean.success(detailVo);
     }
+
+    /**
+     * 根据商品Id查询秒杀商品详情
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping( "/querySecKillGood")
+    @ResponseBody
+    public RespBean querySecKillGood(@RequestParam("goodsId") Long goodsId){
+        GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
+        return RespBean.success(goodsVo);
+    }
+
+    /**
+     * 修改秒杀商品信息
+     * @param seckillGoods
+     * @return
+     */
+    @RequestMapping( value = "/editSecKillGood", method = RequestMethod.POST)
+    @ResponseBody
+    public RespBean editSecKillGood(@RequestBody SeckillGoods seckillGoods){
+        UpdateWrapper<SeckillGoods> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("goods_id",seckillGoods.getGoodsId());
+        seckillGoodsService.update(seckillGoods, updateWrapper);
+        return RespBean.success();
+    }
+
+    /**
+     * 删除商品信息
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping( value = "/delSecKillGood", method = RequestMethod.POST)
+    @ResponseBody
+    public RespBean delSecKillGood(@RequestParam("goodsId") Long goodsId){
+        UpdateWrapper<SeckillGoods> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("goods_id",goodsId);
+        SeckillGoods seckillGoods = new SeckillGoods();
+        seckillGoods.setDelStatus(1);
+        seckillGoodsService.update(seckillGoods, updateWrapper);
+        return RespBean.success();
+    }
+
+    /**
+     * 新增秒杀商品信息
+     * @param goodDetailVo
+     * @return
+     */
+    @RequestMapping( value = "/addSecKillGood", method = RequestMethod.POST)
+    @ResponseBody
+    public RespBean addSecKillGood(@RequestBody GoodDetailVo goodDetailVo){
+        Goods goods = new Goods();
+        goods.setGoodsName(goodDetailVo.getGoodsName());
+        goods.setGoodsTitle(goodDetailVo.getGoodsTitle());
+        goods.setGoodsImg(goodDetailVo.getGoodsImg());
+        goods.setGoodsDetail(goodDetailVo.getGoodsDetail());
+        goods.setGoodsPrice(goodDetailVo.getGoodsPrice());
+        goods.setGoodsStock(goodDetailVo.getGoodsStock());
+        goodsService.save(goods);
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("goods_name", goodDetailVo.getGoodsName());
+        Goods good = goodsService.getOne(queryWrapper);
+
+        SeckillGoods seckillGoods = new SeckillGoods();
+        seckillGoods.setGoodsId(good.getId());
+        seckillGoods.setSeckillPrice(goodDetailVo.getSeckillPrice());
+        seckillGoods.setStockCount(goodDetailVo.getStockCount());
+        seckillGoods.setStartDate(goodDetailVo.getStartDate());
+        seckillGoods.setEndDate(goodDetailVo.getEndDate());
+        seckillGoodsService.save(seckillGoods);
+        return RespBean.success();
+    }
+
 }

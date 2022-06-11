@@ -17,6 +17,7 @@
                sg.end_date
         FROM t_goods as g
                  LEFT JOIN t_seckill_goods as sg ON g.id = sg.goods_id
+               WHERE sg.del_status = 0
     </select>
 
     <select id="findGoodsVoByGoodsId" resultType="com.wsz.seckill.vo.GoodsVo">

@@ -1,7 +1,10 @@
 package com.wsz.seckill.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wsz.seckill.mapper.SeckillGoodsMapper;
 import com.wsz.seckill.pojo.Goods;
 import com.wsz.seckill.mapper.GoodsMapper;
+import com.wsz.seckill.pojo.SeckillGoods;
 import com.wsz.seckill.service.IGoodsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wsz.seckill.vo.GoodsVo;
@@ -24,6 +27,9 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
     @Autowired
     private GoodsMapper goodsMapper;
 
+    @Autowired
+    private SeckillGoodsMapper seckillGoodsMapper;
+
     /**
      * 获取商品列表
      * @return
@@ -42,4 +48,5 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
     public GoodsVo findGoodsVoByGoodsId(Long goodsId) {
         return goodsMapper.findGoodsVoByGoodsId(goodsId);
     }
+
 }

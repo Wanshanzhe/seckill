@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -37,10 +39,15 @@ public class SeckillGoods implements Serializable {
     private Integer stockCount;
 
     @ApiModelProperty("开始时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
 
     @ApiModelProperty("结束时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
+
+    @ApiModelProperty("逻辑删除")
+    private Integer delStatus;
 
     public Long getId() {
         return id;
@@ -85,6 +92,14 @@ public class SeckillGoods implements Serializable {
         this.endDate = endDate;
     }
 
+    public Integer getDelStatus() {
+        return delStatus;
+    }
+
+    public void setDelStatus(Integer delStatus) {
+        this.delStatus = delStatus;
+    }
+
     @Override
     public String toString() {
         return "SeckillGoods{" +
@@ -94,6 +109,7 @@ public class SeckillGoods implements Serializable {
             ", stockCount=" + stockCount +
             ", startDate=" + startDate +
             ", endDate=" + endDate +
+            ", delStatus=" + delStatus +
         "}";
     }
 }

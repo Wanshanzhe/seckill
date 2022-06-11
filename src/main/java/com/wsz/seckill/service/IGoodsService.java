@@ -2,6 +2,7 @@ package com.wsz.seckill.service;
 
 import com.wsz.seckill.pojo.Goods;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wsz.seckill.pojo.SeckillGoods;
 import com.wsz.seckill.vo.GoodsVo;
 
 import java.util.List;
@@ -28,4 +29,5 @@ public interface IGoodsService extends IService<Goods> {
      * @return
      */
     GoodsVo findGoodsVoByGoodsId(Long goodsId);
+
 }
