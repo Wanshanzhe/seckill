@@ -53,11 +53,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
         }
         //校验密码是否正确
-        if (!MD5Util.formPassToDBPass(password, user.getSalt()).equals(user.getPassword())) {
+        if (!MD5Util.covertPassToDBPass(password, user.getSalt()).equals(user.getPassword())) {
             throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
         }
 
-        //生产cookie
+        //cookie（使用工具类手动生成）
         String ticket = UUIDUtil.uuid();
         /**
          * 把用户信息放入session中（不推荐使用）

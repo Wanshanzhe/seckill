@@ -12,12 +12,12 @@ import com.wsz.seckill.vo.DetailVo;
 import com.wsz.seckill.vo.GoodDetailVo;
 import com.wsz.seckill.vo.GoodsVo;
 import com.wsz.seckill.vo.RespBean;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
@@ -51,30 +51,34 @@ public class GoodsController {
     private ThymeleafViewResolver thymeleafViewResolver;
 
     /**
-     * 跳转到商品页面
-     * @param model
-     * @param user
+     * 登录成功展示登录页面
+     * @param model 返回值信息
+     * @param user 用户信息
      * @return
      */
     @RequestMapping(value = "/toList", produces = "text/html;charset=utf-8")
     @ResponseBody
     public String toList(Model model, User user, HttpServletRequest request, HttpServletResponse response) {
-        //redis中获取页面，如果不为空，直接返回页面
-        ValueOperations valueOperations = redisTemplate.opsForValue();
-        String html =  (String)valueOperations.get("goodsList");
-        if (!StringUtils.isEmpty(html)){
+
+        ValueOperations redisOperation = redisTemplate.opsForValue();
+        String html =  (String)redisOperation.get("goodsList");
+
+        //从redis缓存中获取对应的key值，如果key值存在则页面存在，反之不存在
+        if (StringUtils.isNotEmpty(html)){
             return html;
         }
+        //返回用户信息
         model.addAttribute("user", user);
+        //返回商品信息
         model.addAttribute("goodsList", goodsService.findGoodsVo());
 
-//        return "goodsList";
-        //如果为空，手动渲染，存入Redis并返回
+        //判断页面是否为空，如果为空需要重新渲染，然后存入缓存并返回
         WebContext context = new WebContext(request, response, request.getServletContext(), request.getLocale(),
                 model.asMap());
         html = thymeleafViewResolver.getTemplateEngine().process("goodsList", context);
-        if (!StringUtils.isEmpty(html)){
-            valueOperations.set("goodsList", html, 60, TimeUnit.SECONDS);
+        //再次判断是否为空，缓存过期时间为30秒
+        if (StringUtils.isNotEmpty(html)){
+            redisOperation.set("goodsList", html, 30, TimeUnit.SECONDS);
         }
         return html;
 
@@ -153,7 +157,7 @@ public class GoodsController {
         WebContext context = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());
         html = thymeleafViewResolver.getTemplateEngine().process("goodsDetail", context);
         if (!StringUtils.isEmpty(html)){
-            valueOperations.set("goodsDetail:" + goodsId, html, 60, TimeUnit.SECONDS);
+            valueOperations.set("goodsDetail:" + goodsId, html, 30, TimeUnit.SECONDS);
         }
         return html;
     }
@@ -229,9 +233,9 @@ public class GoodsController {
      * @param goodsId
      * @return
      */
-    @RequestMapping( value = "/delSecKillGood", method = RequestMethod.POST)
+    @RequestMapping( value = "/removeSecKillGood", method = RequestMethod.POST)
     @ResponseBody
-    public RespBean delSecKillGood(@RequestParam("goodsId") Long goodsId){
+    public RespBean removeSecKillGood(@RequestParam("goodsId") Long goodsId){
         UpdateWrapper<SeckillGoods> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("goods_id",goodsId);
         SeckillGoods seckillGoods = new SeckillGoods();

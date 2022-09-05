@@ -12,14 +12,14 @@ import java.util.List;
 /**
  * @author : wanshanzhe
  * @date : 2022/3/26 5:10 下午
- * @desc : MVC配置类
+ * @desc : 用户自定义参数配置和静态资源访问路径配置（拦截器）
  */
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
-    private UserArgumentResolve userArgumentResolve;
+    private UserResolveArgument userResolveArgument;
 
     /**
      * 配置静态资源访问路径
@@ -32,6 +32,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(userArgumentResolve);
+        resolvers.add(userResolveArgument);
     }
 }

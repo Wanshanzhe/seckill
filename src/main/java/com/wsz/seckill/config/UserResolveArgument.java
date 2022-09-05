@@ -12,6 +12,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,9 +22,9 @@ import javax.servlet.http.HttpServletResponse;
  * @desc : 用户自定义参数
  */
 @Component
-public class UserArgumentResolve implements HandlerMethodArgumentResolver {
+public class UserResolveArgument implements HandlerMethodArgumentResolver {
 
-    @Autowired
+    @Resource
     private IUserService userService;
 
     /**
@@ -33,18 +34,18 @@ public class UserArgumentResolve implements HandlerMethodArgumentResolver {
      */
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        Class<?> clazz = methodParameter.getParameterType();
-        return clazz == User.class;
+        Class<?> userClass = methodParameter.getParameterType();
+        return userClass == User.class;
     }
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest webRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-        String ticket = CookieUtil.getCookieValue(request, "userTicket");
+        HttpServletRequest requestParam = webRequest.getNativeRequest(HttpServletRequest.class);
+        HttpServletResponse responseParam = webRequest.getNativeResponse(HttpServletResponse.class);
+        String ticket = CookieUtil.getCookieValue(requestParam, "userTicket");
         if (StringUtils.isEmpty(ticket)){
-            return null;
+            return new Object();
         }
-        return userService.getUserByCookie(ticket, request, response);
+        return userService.getUserByCookie(ticket, requestParam, responseParam);
     }
 }

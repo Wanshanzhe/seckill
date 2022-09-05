@@ -125,7 +125,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      */
     @Override
     public String createPath(User user, Long goodsId) {
-        String str = MD5Util.md5(UUIDUtil.uuid() + "123456");
+        String str = MD5Util.password_md5(UUIDUtil.uuid() + "123456");
         redisTemplate.opsForValue().set("seckillpath:" + user.getId() + ":" + goodsId, str, 60, TimeUnit.SECONDS);
         return str;
     }

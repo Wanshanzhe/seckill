@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class MD5Util {
 
-    public static String md5(String src) {
+    public static String password_md5(String src) {
         return DigestUtils.md5Hex(src);
     }
 
-    private static final String salt = "1a2b3c4d";
+    private static final String PASSWORD_SALT = "3c3d3e3f3g";
 
     /**
      * 第一次加密（前端展示的密码）
@@ -24,39 +24,39 @@ public class MD5Util {
      * @param inputPass
      * @return
      */
-    public static String inputPassToFromPass(String inputPass) {
-        String str = "" + salt.charAt(0) + salt.charAt(2) + inputPass + salt.charAt(5) + salt.charAt(4);
-        return md5(str);
+    public static String convertToFromPass(String inputPass) {
+        String str = "" + PASSWORD_SALT.charAt(0) + PASSWORD_SALT.charAt(1) + inputPass + PASSWORD_SALT.charAt(2) + PASSWORD_SALT.charAt(3);
+        return password_md5(str);
     }
 
     /**
      * 二次加密 后端存入数据库的密码
      *
      * @param formPass
-     * @param salt
+     * @param PASSWORD_SALT
      * @return
      */
-    public static String formPassToDBPass(String formPass, String salt) {
-        String str = "" + salt.charAt(0) + salt.charAt(2) + formPass + salt.charAt(5) + salt.charAt(4);
-        return md5(str);
+    public static String covertPassToDBPass(String formPass, String PASSWORD_SALT) {
+        String str = "" + PASSWORD_SALT.charAt(0) + PASSWORD_SALT.charAt(1) + formPass + PASSWORD_SALT.charAt(2) + PASSWORD_SALT.charAt(3);
+        return password_md5(str);
     }
 
     /**
      * 二次加密之后的数据库入库
      *
      * @param inputPass
-     * @param saltDB
+     * @param PASSWORD_SALTDB
      * @return
      */
-    public static String inputPassToDbPass(String inputPass, String saltDB) {
-        String formPass = inputPassToFromPass(inputPass);
-        String dbPass = formPassToDBPass(formPass, saltDB);
+    public static String inputPassToDbPass(String inputPass, String PASSWORD_SALTDB) {
+        String formPass = convertToFromPass(inputPass);
+        String dbPass = covertPassToDBPass(formPass, PASSWORD_SALTDB);
         return dbPass;
     }
 
     public static void main(String[] args) {
-        System.out.println(inputPassToFromPass("123456"));//d3b1294a61a07da9b49b6e22b2cbd7f9
-        System.out.println(formPassToDBPass(inputPassToFromPass("123456"), "1a2b3c4d"));
-        System.out.println(inputPassToDbPass("123456", "1a2b3c4d"));
+        System.out.println(convertToFromPass("123456"));//d3b1294a61a07da9b49b6e22b2cbd7f9
+        System.out.println(covertPassToDBPass(convertToFromPass("123456"), "3c3d3e3f3g"));
+        System.out.println(inputPassToDbPass("123456", "3c3d3e3f3g"));
     }
 }
