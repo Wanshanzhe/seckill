@@ -16,11 +16,15 @@
     <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap-datetimepicker.min.css}"/>
     <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap-datetimepicker.js}"></script>
     <script type="text/javascript" th:src="@{/bootstrap/js/locales/bootstrap-datetimepicker.zh-CN.js}"></script>
+
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
 </head>
 <body>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>秒杀商品列表管理</span>
+        <span style="line-height: 28px;">秒杀商品列表管理</span>
+        <img src="/img/exit.png" style="width: 30px;height: 30px;float: right" onclick="logout()"/>
     </div>
     <div class="panel-heading" style="background-color: #fcf8e3">
         <button type="button" class="btn btn-primary" id="add">新增商品</button>
@@ -327,6 +331,26 @@
             }
         })
     }
+
+   function logout(){
+       $.ajax({
+           url: '/login/logout',
+           type: 'POST',
+           dataType: 'json',
+           contentType: 'application/json',
+           success:function (data){
+               if (data.code == 200){
+                   window.location.href = "/login/toLogin";
+                   layer.msg("退出成功");
+               }else{
+                   layer.msg("退出失败");
+               }
+           },
+           error: function (data){
+               layer.msg("客户端请求错误");
+           }
+       })
+   }
 
 </script>
 </body>

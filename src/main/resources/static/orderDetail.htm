@@ -35,8 +35,8 @@
             <td id="createTime" colspan="2"></td>
         </tr>
         <tr>
-            <td>订单状态</td>
-            <td id="status">
+            <td style="line-height: 35px">订单状态</td>
+            <td style="line-height: 35px" id="status">
 <!--                <span if="${order.status eq 0}">未支付</span>-->
 <!--                <span if="${order.status eq 1}">待发货</span>-->
 <!--                <span if="${order.status eq 2}">已发货</span>-->
@@ -45,7 +45,7 @@
 <!--                <span if="${order.status eq 5}">已完成</span>-->
             </td>
             <td>
-                <button class="btn btn-primary btn-block" type="submit" id="payButton">立即支付</button>
+                <button class="btn btn-primary btn-block" type="submit" id="payButton" style="width: 20%">立即支付</button>
             </td>
         </tr>
         <tr>
@@ -115,6 +115,16 @@
             }
             $("#status").text(statusText);
         }
+
+        $('#payButton').click(function (){
+            layer.confirm("恭喜你，支付成功！跳转秒杀列表页？", {btn: ["确定", "取消"]},
+                function () {
+                    window.location.href = "/goods/toList";
+                },
+                function () {
+                    layer.close();
+                });
+        });
     </script>
 </body>
 </html>

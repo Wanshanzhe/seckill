@@ -79,9 +79,8 @@ public class SecKillController implements InitializingBean {
     @RequestMapping("/doSecKill")
     public String doSecKill(Model model, User user, Long goodsId){
         if (user == null){
-
+            model.addAttribute("user", user);
         }
-        model.addAttribute("user", user);
         GoodsVo goods = goodsService.findGoodsVoByGoodsId(goodsId);
         //判断库存
         if (goods.getStockCount() < 1){

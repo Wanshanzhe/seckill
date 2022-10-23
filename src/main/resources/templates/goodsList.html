@@ -18,7 +18,8 @@
 <body>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <span>秒杀商品列表</span>
+        <span style="line-height: 28px;">秒杀商品列表</span>
+        <img src="/img/exit.png" style="width: 30px;height: 30px;float: right" onclick="logout()"/>
     </div>
     <table class="table" id="goodslist">
         <tr>
@@ -40,5 +41,27 @@
         </tr>
     </table>
 </div>
+
+<script>
+    function logout(){
+        $.ajax({
+            url: '/login/logout',
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            success:function (data){
+                if (data.code == 200){
+                    window.location.href = "/login/toLogin";
+                    layer.msg("退出成功");
+                }else{
+                    layer.msg("退出失败");
+                }
+            },
+            error: function (data){
+                layer.msg("客户端请求错误");
+            }
+        })
+    }
+</script>
 </body>
 </html>
