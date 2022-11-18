@@ -20,6 +20,7 @@
     <div class="panel-heading">
         <span style="line-height: 28px;">秒杀商品列表</span>
         <img src="/img/exit.png" style="width: 30px;height: 30px;float: right" onclick="logout()"/>
+        <span style="line-height: 28px;float: right;margin-right: 10px;">欢迎 <b th:text="${user.role} == '1'?'管理员':'游客'"></b>：<b th:text="${user.nickname}"></b></span>
     </div>
     <table class="table" id="goodslist">
         <tr>

@@ -25,6 +25,7 @@
     <div class="panel-heading">
         <span style="line-height: 28px;">秒杀商品列表管理</span>
         <img src="/img/exit.png" style="width: 30px;height: 30px;float: right" onclick="logout()"/>
+        <span style="line-height: 28px;float: right;margin-right: 10px;">欢迎 <b th:text="${user.role} == '1'?'管理员':'游客'"></b>：<b th:text="${user.nickname}"></b></span>
     </div>
     <div class="panel-heading" style="background-color: #fcf8e3">
         <button type="button" class="btn btn-primary" id="add">新增商品</button>
@@ -285,7 +286,6 @@
     });
 
     function edit(goodsId){
-        debugger;
         $.ajax({
             url: '/goods/querySecKillGood',
             type: 'GET',
